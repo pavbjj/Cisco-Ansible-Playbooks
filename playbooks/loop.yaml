@@ -1,0 +1,20 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+
+
+  vars:
+  
+    hostname:
+      - 660-SW- 
+      
+      
+
+  tasks:
+  
+  - name: set hostname
+      with_items: "{{ hostname }}"
+      ios_config:
+        commands:
+        - hostname "{{ item }}"

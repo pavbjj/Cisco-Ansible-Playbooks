@@ -1,0 +1,194 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+   
+  
+  tasks:
+
+  - name: Set global QoS settings
+    ios_config:
+     lines:
+     - mls qos
+     - mls qos map cos-dscp 0 8 16 24 32 46 48 56
+     - mls qos srr-queue output dscp-map queue 1 threshold 3 32 40 46
+     - mls qos srr-queue output dscp-map queue 2 threshold 1 16 18 20 22
+     - mls qos srr-queue output dscp-map queue 2 threshold 1 26 28 30 34 36 38
+     - mls qos srr-queue output dscp-map queue 2 threshold 2 24
+     - mls qos srr-queue output dscp-map queue 2 threshold 3 48 56
+     - mls qos srr-queue output dscp-map queue 3 threshold 3 0
+     - mls qos srr-queue output dscp-map queue 4 threshold 1 8
+     - mls qos srr-queue output dscp-map queue 4 threshold 2 10 12 14
+     - mls qos queue-set output 1 buffers 40 20 20 20
+    register: qos
+ 
+  - debug: var=qos
+  
+  - name: Interface QoS settings
+    ios_config:
+      parents: "interface {{ item.interface }}"
+      lines:
+        - mls qos trust dscp
+        - priority-queue out
+        - srr-queue bandwidth share 10 10 60 20
+        - srr-queue bandwidth shape  10  0  0  0
+    with_items:
+       - { interface : GigabitEthernet1/0/1 }
+       - { interface : GigabitEthernet1/0/2 }
+       - { interface : GigabitEthernet1/0/3 }
+       - { interface : GigabitEthernet1/0/4 }
+       - { interface : GigabitEthernet1/0/5 }
+       - { interface : GigabitEthernet1/0/6 }
+       - { interface : GigabitEthernet1/0/7 }
+       - { interface : GigabitEthernet1/0/8 }
+       - { interface : GigabitEthernet1/0/9 }
+       - { interface : GigabitEthernet1/0/10 }
+       - { interface : GigabitEthernet1/0/11 }
+       - { interface : GigabitEthernet1/0/12 }
+       - { interface : GigabitEthernet1/0/13 }
+       - { interface : GigabitEthernet1/0/14 }
+       - { interface : GigabitEthernet1/0/15 }
+       - { interface : GigabitEthernet1/0/16 }
+       - { interface : GigabitEthernet1/0/17 }
+       - { interface : GigabitEthernet1/0/18 }
+       - { interface : GigabitEthernet1/0/19 }
+       - { interface : GigabitEthernet1/0/20 }
+       - { interface : GigabitEthernet1/0/21 }
+       - { interface : GigabitEthernet1/0/22 }
+       - { interface : GigabitEthernet1/0/23 }
+       - { interface : GigabitEthernet1/0/24 }
+       - { interface : GigabitEthernet1/0/25 }
+       - { interface : GigabitEthernet1/0/26 }
+       - { interface : GigabitEthernet1/0/27 }
+       - { interface : GigabitEthernet1/0/28 }
+       - { interface : GigabitEthernet1/0/29 }
+       - { interface : GigabitEthernet1/0/30 }
+       - { interface : GigabitEthernet1/0/31 }
+       - { interface : GigabitEthernet1/0/32 }
+       - { interface : GigabitEthernet1/0/33 }
+       - { interface : GigabitEthernet1/0/34 }
+       - { interface : GigabitEthernet1/0/35 }
+       - { interface : GigabitEthernet1/0/36 }
+       - { interface : GigabitEthernet1/0/37 }
+       - { interface : GigabitEthernet1/0/38 }
+       - { interface : GigabitEthernet1/0/39 }
+       - { interface : GigabitEthernet1/0/40 }
+       - { interface : GigabitEthernet1/0/41 }
+       - { interface : GigabitEthernet1/0/42 }
+       - { interface : GigabitEthernet1/0/43 }
+       - { interface : GigabitEthernet1/0/44 }
+       - { interface : GigabitEthernet1/0/45 }
+       - { interface : GigabitEthernet1/0/46 }
+       - { interface : GigabitEthernet1/0/47 }
+       - { interface : GigabitEthernet1/0/48 }
+       - { interface : GigabitEthernet1/0/49 }
+       - { interface : GigabitEthernet1/0/50 }
+       - { interface : GigabitEthernet1/0/51 }
+       - { interface : GigabitEthernet1/0/52 }
+       - { interface : GigabitEthernet2/0/1 }
+       - { interface : GigabitEthernet2/0/2 }
+       - { interface : GigabitEthernet2/0/3 }
+       - { interface : GigabitEthernet2/0/4 }
+       - { interface : GigabitEthernet2/0/5 }
+       - { interface : GigabitEthernet2/0/6 }
+       - { interface : GigabitEthernet2/0/7 }
+       - { interface : GigabitEthernet2/0/8 }
+       - { interface : GigabitEthernet2/0/9 }
+       - { interface : GigabitEthernet2/0/10 }
+       - { interface : GigabitEthernet2/0/11 }
+       - { interface : GigabitEthernet2/0/12 }
+       - { interface : GigabitEthernet2/0/13 }
+       - { interface : GigabitEthernet2/0/14 }
+       - { interface : GigabitEthernet2/0/15 }
+       - { interface : GigabitEthernet2/0/16 }
+       - { interface : GigabitEthernet2/0/17 }
+       - { interface : GigabitEthernet2/0/18 }
+       - { interface : GigabitEthernet2/0/19 }
+       - { interface : GigabitEthernet2/0/20 }
+       - { interface : GigabitEthernet2/0/21 }
+       - { interface : GigabitEthernet2/0/22 }
+       - { interface : GigabitEthernet2/0/23 }
+       - { interface : GigabitEthernet2/0/24 }
+       - { interface : GigabitEthernet2/0/25 }
+       - { interface : GigabitEthernet2/0/26 }
+       - { interface : GigabitEthernet2/0/27 }
+       - { interface : GigabitEthernet2/0/28 }
+       - { interface : GigabitEthernet2/0/29 }
+       - { interface : GigabitEthernet2/0/30 }
+       - { interface : GigabitEthernet2/0/31 }
+       - { interface : GigabitEthernet2/0/32 }
+       - { interface : GigabitEthernet2/0/33 }
+       - { interface : GigabitEthernet2/0/34 }
+       - { interface : GigabitEthernet2/0/35 }
+       - { interface : GigabitEthernet2/0/36 }
+       - { interface : GigabitEthernet2/0/37 }
+       - { interface : GigabitEthernet2/0/38 }
+       - { interface : GigabitEthernet2/0/39 }
+       - { interface : GigabitEthernet2/0/40 }
+       - { interface : GigabitEthernet2/0/41 }
+       - { interface : GigabitEthernet2/0/42 }
+       - { interface : GigabitEthernet2/0/43 }
+       - { interface : GigabitEthernet2/0/44 }
+       - { interface : GigabitEthernet2/0/45 }
+       - { interface : GigabitEthernet2/0/46 }
+       - { interface : GigabitEthernet2/0/47 }
+       - { interface : GigabitEthernet2/0/48 }
+       - { interface : GigabitEthernet2/0/49 }
+       - { interface : GigabitEthernet2/0/50 }
+       - { interface : GigabitEthernet2/0/51 }
+       - { interface : GigabitEthernet2/0/52 }
+       - { interface : GigabitEthernet3/0/1 }
+       - { interface : GigabitEthernet3/0/2 }
+       - { interface : GigabitEthernet3/0/3 }
+       - { interface : GigabitEthernet3/0/4 }
+       - { interface : GigabitEthernet3/0/5 }
+       - { interface : GigabitEthernet3/0/6 }
+       - { interface : GigabitEthernet3/0/7 }
+       - { interface : GigabitEthernet3/0/8 }
+       - { interface : GigabitEthernet3/0/9 }
+       - { interface : GigabitEthernet3/0/10 }
+       - { interface : GigabitEthernet3/0/11 }
+       - { interface : GigabitEthernet3/0/12 }
+       - { interface : GigabitEthernet3/0/13 }
+       - { interface : GigabitEthernet3/0/14 }
+       - { interface : GigabitEthernet3/0/15 }
+       - { interface : GigabitEthernet3/0/16 }
+       - { interface : GigabitEthernet3/0/17 }
+       - { interface : GigabitEthernet3/0/18 }
+       - { interface : GigabitEthernet3/0/19 }
+       - { interface : GigabitEthernet3/0/20 }
+       - { interface : GigabitEthernet3/0/21 }
+       - { interface : GigabitEthernet3/0/22 }
+       - { interface : GigabitEthernet3/0/23 }
+       - { interface : GigabitEthernet3/0/24 }
+       - { interface : GigabitEthernet3/0/25 }
+       - { interface : GigabitEthernet3/0/26 }
+       - { interface : GigabitEthernet3/0/27 }
+       - { interface : GigabitEthernet3/0/28 }
+       - { interface : GigabitEthernet3/0/29 }
+       - { interface : GigabitEthernet3/0/30 }
+       - { interface : GigabitEthernet3/0/31 }
+       - { interface : GigabitEthernet3/0/32 }
+       - { interface : GigabitEthernet3/0/33 }
+       - { interface : GigabitEthernet3/0/34 }
+       - { interface : GigabitEthernet3/0/35 }
+       - { interface : GigabitEthernet3/0/36 }
+       - { interface : GigabitEthernet3/0/37 }
+       - { interface : GigabitEthernet3/0/38 }
+       - { interface : GigabitEthernet3/0/39 }
+       - { interface : GigabitEthernet3/0/40 }
+       - { interface : GigabitEthernet3/0/41 }
+       - { interface : GigabitEthernet3/0/42 }
+       - { interface : GigabitEthernet3/0/43 }
+       - { interface : GigabitEthernet3/0/44 }
+       - { interface : GigabitEthernet3/0/45 }
+       - { interface : GigabitEthernet3/0/46 }
+       - { interface : GigabitEthernet3/0/47 }
+       - { interface : GigabitEthernet3/0/48 }
+       - { interface : GigabitEthernet3/0/49 }
+       - { interface : GigabitEthernet3/0/50 }
+       - { interface : GigabitEthernet3/0/51 }
+       - { interface : GigabitEthernet3/0/52 }
+    ignore_errors: yes
+    register: int_qos
+  - debug: var=int_qos  

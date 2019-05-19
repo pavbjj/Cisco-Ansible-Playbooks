@@ -1,0 +1,17 @@
+---
+provider:
+  username: no_tacacs+
+  password: Envigo.D15ast5r
+  authorize: true
+  auth_pass: Envigo.D15ast5r
+  authorize: true
+  host: "{{ inventory_hostname }}"
+  timeout: 120
+ACL:
+  NETWORK_MANAGEMENT:
+    TYPE: extended
+    LIST:
+      - permit ip 192.168.10.0 0.0.0.255 any
+      - permit ip 192.168.20.0 0.0.0.255 any
+      - permit ip 192.168.30.0 0.0.0.255 any
+      - permit ip 192.168.40.0 0.0.0.255 any

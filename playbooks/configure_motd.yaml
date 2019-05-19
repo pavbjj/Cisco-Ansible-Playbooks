@@ -1,0 +1,20 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+
+  tasks:
+
+  - name: CONFIGURE BANNER ON CISCO DEVICES
+    ios_banner:
+      banner: login
+      text: "{{ lookup('file', '/etc/ansible/banner.cfg') }}"
+      state: present
+
+  - name: SHOW RUN | BEG BANNER 
+    ios_command:
+      commands:
+        - show run | beg HODL
+    register: banner
+
+  - debug: var=banner.stdout_lines

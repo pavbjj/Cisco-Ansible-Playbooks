@@ -1,0 +1,36 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+   
+  
+  tasks:
+
+#  - name: Set global QoS settings
+#    ios_config:
+#     lines:
+#     - mls qos
+#     - mls qos map cos-dscp 0 8 16 24 32 46 48 56
+#     - mls qos srr-queue output dscp-map queue 1 threshold 3 32 40 46
+#     - mls qos srr-queue output dscp-map queue 2 threshold 1 16 18 20 22
+#     - mls qos srr-queue output dscp-map queue 2 threshold 1 26 28 30 34 36 38
+#     - mls qos srr-queue output dscp-map queue 2 threshold 2 24
+#     - mls qos srr-queue output dscp-map queue 2 threshold 3 48 56
+#     - mls qos srr-queue output dscp-map queue 3 threshold 3 0
+#     - mls qos srr-queue output dscp-map queue 4 threshold 1 8
+#     - mls qos srr-queue output dscp-map queue 4 threshold 2 10 12 14
+#     - mls qos queue-set output 1 buffers 40 20 20 20
+#    register: qos
+ 
+#  - debug: var=qos
+  
+  - name: Interface QoS settings
+    ios_config:
+      parents: interface range GigabitEthernet1/0/1 - 26
+      lines:
+        - mls qos trust dscp
+        - priority-queue out
+        - srr-queue bandwidth share 10 10 60 20
+        - srr-queue bandwidth shape  10  0  0  0
+    register: int_qos
+  - debug: var=int_qos  

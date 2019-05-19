@@ -1,0 +1,24 @@
+---
+- name: Backup show run (enable mode commands)
+  hosts: test
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: run enable level commands
+      ios_command:
+        authorize: yes
+        commands:
+          - show run
+
+      register: print_output
+
+    - name: get timestamp
+      command: date +%Y%m%d
+      register: timestamp
+
+
+   - name: save output to a fil
+      copy: 
+      content: "{{ print_output.stdout[0] }}"
+      dest: "./backups/{{ inventory_hostname }}_{{ timestamp.stdout }}.txt"

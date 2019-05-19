@@ -1,0 +1,32 @@
+---
+- name: Replace ACL
+  hosts: test
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: CHECK ACLS
+      ios_command:
+        commands:
+          - show ip access-list
+      register: beforeacl
+    - debug: var=beforeacl.stdout_lines
+
+
+    - name: CREATE ENVIGO ACL
+      ios_config:
+        authorize: yes
+        commands:
+          - 10 permit 10.128.0.0 0.0.255.255
+        parents: ['ip access-list standard 16']
+        before: ['no ip access-list standard 16']
+        match: exact
+      register: newacl
+    - debug: var=newacl.stdout_lines
+
+    - name: CHECK ACLS
+      ios_command:
+        commands:
+          - show ip access-list
+      register: afteracl
+    - debug: var=afteracl.stdout_lines

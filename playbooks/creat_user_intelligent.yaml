@@ -1,0 +1,36 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+  
+  vars:
+     names:
+       -no_tacacs+
+
+  tasks:
+    - name: remove all users 
+      ios_user:
+        purge: yes
+  
+      register: remove
+    
+    - debug: var=remove
+
+    - name: create a new user
+      ios_user:
+        name: no_tacacs+
+        configured_password: Envigo.D15ast5r
+        state: present
+   
+      register: create
+
+    - debug: var=create
+
+    - name: users to privilege level 15
+      ios_user:
+        name: no_tacacs+
+        privilege: 15
+        state: present
+      register: priv
+
+    - debug: var=priv

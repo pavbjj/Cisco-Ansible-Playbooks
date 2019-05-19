@@ -1,0 +1,792 @@
+Building configuration...
+
+Current configuration : 17167 bytes
+!
+! Last configuration change at 13:47:42 UTC Tue Mar 12 2019 by kuligowskip
+! NVRAM config last updated at 09:54:43 UTC Fri Feb 8 2019 by hussains
+!
+version 15.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime
+service password-encryption
+!
+hostname WiFi_Test_Switch
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 100000
+enable secret 5 $1$j.Mw$usgqLdK5h4V6YW8gU9ZMv/
+!
+username no_tacacs+ privilege 15 secret 5 $1$KP6M$LvUtws1d3UnSfPWWVmb4C0
+username cisco password 7 060506324F41
+aaa new-model
+!
+!
+aaa group server tacacs+ TAC_PLUS
+ server name Woking-uk690cisev01p
+ server name Dallas-us234cisev01p
+!
+aaa authentication login default group tacacs+ local
+aaa authentication enable default group tacacs+ enable
+aaa authorization console
+aaa authorization exec default group tacacs+ local 
+aaa accounting commands 15 default start-stop group tacacs+
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock summer-time BST recurring last Sun Mar 1:00 last Sun Oct 2:00
+switch 1 provision ws-c2960x-48fps-l
+no ip source-route
+ip routing
+!
+!
+no ip dhcp snooping information option
+no ip domain-lookup
+ip domain-name envigo.local
+vtp domain envigo.local
+vtp mode transparent
+!
+!
+!
+!
+!
+!
+mls qos
+!
+crypto pki trustpoint TP-self-signed-742706816
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-742706816
+ revocation-check none
+ rsakeypair TP-self-signed-742706816
+!
+!
+crypto pki certificate chain TP-self-signed-742706816
+ certificate self-signed 01
+  30820229 30820192 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 37343237 30363831 36301E17 0D313730 39313130 38323132 
+  355A170D 32303031 30313030 30303030 5A303031 2E302C06 03550403 1325494F 
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3734 32373036 
+  38313630 819F300D 06092A86 4886F70D 01010105 0003818D 00308189 02818100 
+  EFD91604 F6DFDF25 FE85B3D4 1CA93732 024F9A6F ABDD9DD9 5F41C7CB 5C56F758 
+  9535A944 5A7A4278 B45B8D76 CE3FFACF 20231EE3 FA44E152 BCBEA3AB 278FD86C 
+  0FEC7EEF B31D8069 4E97A71E 72A103ED 5A78632B 76130E89 FE1FA697 7B0EFD7F 
+  546FC1BC E6947D46 55BCC1AD D06EA182 7259060C 9DB0288B 833157E3 8F6C1FC1 
+  02030100 01A35330 51300F06 03551D13 0101FF04 05300301 01FF301F 0603551D 
+  23041830 1680147A 024A7099 FE6B6E25 ABCA7A78 64B18EA7 F5152F30 1D060355 
+  1D0E0416 04147A02 4A7099FE 6B6E25AB CA7A7864 B18EA7F5 152F300D 06092A86 
+  4886F70D 01010505 00038181 0000001F 841A7396 18A84BA4 4DFC515C 770D1E2F 
+  E699E569 FA71BAC3 3B178292 93D12915 80339611 A50A93DF 514720A9 44251BED 
+  8452C380 3BEBF5BE 46718599 B5BB94A5 6980BBB2 8765148A 3CAD25A8 B251DBAD 
+  7068619E 13CDE90B 47261AF1 AB2A07C7 C5DF8A6C 47F00D8D 0E4C6546 C7835AC6 
+  A3AA45AD D7617B4C FEC8D747 3F
+  	quit
+archive
+ log config
+  logging enable
+  logging size 200
+  notify syslog contenttype plaintext
+ path tftp://10.0.88.38/660/WiFi_Test_Switch
+ write-memory
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+spanning-tree uplinkfast
+spanning-tree vlan 1-1005 priority 49152
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+vlan 2
+ name server vlan
+!
+vlan 3
+ name server mgt vlan
+!
+vlan 12
+ name DHCP-Region-A/22
+!
+vlan 32
+ name STATIC-Region-A/22
+!
+vlan 80
+ name WiFi-Envigo-Data/22
+!
+vlan 84
+ name WiFi-Envigo-BYOD/22
+!
+vlan 88
+ name WiFi-Envigo-IPT/22
+!
+vlan 92
+ name WiFi-Envigo-Science/22
+!
+vlan 112
+ name Voice-Region-A/22
+!
+vlan 192
+ name Guest_WiFi
+!
+vlan 199
+ name Security-VLAN
+!
+vlan 252
+ name WiFi-Management/23
+!
+vlan 254
+ name Switch-Management
+!
+vlan 678
+ name "Test Vlan Japan"
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0
+ no ip address
+ no ip route-cache
+ shutdown
+!
+interface GigabitEthernet1/0/1
+ description Staging Access Point
+ switchport access vlan 252
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/2
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/3
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/4
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/5
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/6
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/7
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/8
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/9
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/10
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/11
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/12
+ description DHCP DEVICES
+ switchport access vlan 192
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/13
+ description DHCP DEVICES
+ switchport access vlan 254
+ switchport trunk native vlan 254
+ switchport mode trunk
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/14
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/15
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/16
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/17
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/18
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/19
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/20
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/21
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/22
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/23
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/24
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/25
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/26
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/27
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/28
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/29
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/30
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/31
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/32
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/33
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/34
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/35
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/36
+ description DHCP DEVICES
+ switchport access vlan 12
+ switchport mode access
+ switchport voice vlan 112
+ speed 100
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/37
+ switchport access vlan 678
+ switchport mode access
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/38
+ description STATIC DEVICES
+ switchport access vlan 252
+ switchport mode access
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/39
+ description STATIC DEVICES
+ switchport access vlan 32
+ switchport mode access
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/40
+ description STATIC DEVICES
+ switchport access vlan 32
+ switchport mode access
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/41
+ description STATIC DEVICES
+ switchport access vlan 32
+ switchport mode access
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/42
+ description STATIC DEVICES
+ switchport access vlan 32
+ switchport mode access
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/43
+ description Wireless
+ switchport access vlan 252
+ switchport trunk native vlan 252
+ switchport trunk allowed vlan 80,84,88,92,252
+ switchport mode trunk
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/44
+ description Wireless
+ switchport access vlan 252
+ switchport trunk native vlan 252
+ switchport trunk allowed vlan 80,84,88,92,252
+ switchport mode trunk
+ speed 1000
+ duplex full
+ priority-queue out 
+ mls qos trust dscp
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/45
+ description Wireless
+ switchport access vlan 252
+ switchport trunk native vlan 252
+ switchport trunk allowed vlan 80,84,88,92,252
+ switchport mode trunk
+ speed 1000
+ duplex full
+!
+interface GigabitEthernet1/0/46
+ description Wireless
+ switchport access vlan 252
+ switchport trunk native vlan 252
+ switchport trunk allowed vlan 80,84,88,92,252
+ switchport mode trunk
+ speed 1000
+ duplex full
+!
+interface GigabitEthernet1/0/47
+ description Wireless
+ switchport access vlan 252
+ switchport trunk native vlan 252
+ switchport trunk allowed vlan 80,84,88,92,252
+ switchport mode trunk
+ speed 1000
+ duplex full
+!
+interface GigabitEthernet1/0/48
+ description Wireless
+ switchport access vlan 252
+ switchport trunk native vlan 252
+ switchport trunk allowed vlan 80,84,88,92,252
+ switchport mode trunk
+ speed 1000
+ duplex full
+!
+interface GigabitEthernet1/0/49
+ switchport access vlan 254
+ switchport trunk native vlan 254
+ switchport mode trunk
+ speed nonegotiate
+!
+interface GigabitEthernet1/0/50
+!
+interface GigabitEthernet1/0/51
+!
+interface GigabitEthernet1/0/52
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan9
+ no ip address
+!
+interface Vlan10
+ no ip address
+!
+interface Vlan11
+ no ip address
+!
+interface Vlan12
+ no ip address
+!
+interface Vlan13
+ no ip address
+!
+interface Vlan14
+ no ip address
+!
+interface Vlan15
+ no ip address
+!
+interface Vlan254
+ description Management VLAN
+ ip address 10.128.254.242 255.255.255.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+!
+interface Vlan678
+ description "Test VLAN Japan"
+ ip address 10.202.2.1 255.255.255.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+!
+no ip http server
+ip http secure-server
+!
+ip route 0.0.0.0 0.0.0.0 10.128.254.1
+ip ssh time-out 60
+ip ssh version 2
+ip tacacs source-interface Vlan254
+!
+logging history alerts
+logging host 10.1.181.240
+access-list 16 permit 10.128.0.0 0.0.255.255 log
+access-list 16 permit 172.16.90.0 0.0.0.255 log
+access-list 16 permit 172.16.91.0 0.0.0.255 log
+access-list 16 deny   any log
+!
+snmp-server community Env1g0 RO
+snmp-server location UK660MONIV01P
+snmp-server contact helpdesk 0140 892999
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps envmon fan shutdown supply temperature
+snmp-server host 10.1.181.240 version 2c Env1g0 
+tacacs-server directed-request
+tacacs server MADLAB1
+ address ipv4 10.128.3.10
+ key 7 005500555C5A531F4E7469
+tacacs server Woking-uk690cisev01p
+ address ipv4 10.1.176.247
+ key 7 113B4A164446190F0C793960
+tacacs server Dallas-us234cisev01p
+ address ipv4 10.0.88.247
+ key 7 01215517085F140C291F5C4D
+!
+!
+!
+banner login ^C
+WARNING!!!
+This system is solely for the use of authorized users for official purposes.
+You have no expectation of privacy in its use and to ensure that the system
+is functioning properly, individuals using this computer system are subject
+to having all of their activities monitored and recorded by system personnel.
+Use of this system evidences an express consent to such monitoring and agreement
+that if such monitoring reveals evidence of possible abuse or criminal activity,
+system personnel may provide the results of such monitoring to the appropriate
+officials.
+^C
+!
+line con 0
+ exec-timeout 30 0
+ password 7 09414F0D150415405B5D53
+ logging synchronous
+line vty 0 4
+ access-class 16 in
+ exec-timeout 30 0
+ logging synchronous
+ length 0
+ transport input ssh
+ transport output ssh
+line vty 5 15
+ access-class 16 in
+ transport input ssh
+!
+ntp server 10.128.254.1
+end

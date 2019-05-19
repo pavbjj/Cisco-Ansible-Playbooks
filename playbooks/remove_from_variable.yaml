@@ -1,0 +1,18 @@
+---
+- hosts: wifi
+  gather_facts: no
+  connection: local
+
+  vars:
+     names:
+       - no_tacacs+
+       
+
+  tasks:
+     - name: remove users
+       ios_user:
+         name: "{{ item }}"
+         state: absent
+       with_items: "{{ names }}"
+       when: item not in names
+

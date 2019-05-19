@@ -1,0 +1,14 @@
+---
+- name: Disable http/https
+  hosts: test
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: run enable level commands
+      ios_config:
+        authorize: yes
+        commands:
+          - no ip http server 
+          - no ip http secure-server 
+    - debug: msg="HTTP and HTTPS have been disabled"
