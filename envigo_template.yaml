@@ -1,0 +1,185 @@
+---
+- hosts: 660,680,820,840,850
+  gather_facts: no
+  connection: local
+
+###DNS
+  vars:
+    dns_servers:
+      - ip name-server 10.128.2.60
+      - ip name-server 2.2.2.2
+    
+    aaa_configs:
+      - aaa new-model
+      - aaa authentication login default group tacacs+ local
+      - aaa authentication enable default group tacacs+ enable
+      - aaa authorization config-commands
+      - aaa authorization console
+      - 'aaa authorization exec default group tacacs+ local '
+      - 'aaa authorization commands 1 default group tacacs+ none ' 
+      - 'aaa authorization commands 15 default group tacacs+ none '
+      - aaa accounting exec default start-stop group tacacs+
+      - aaa accounting network default start-stop group tacacs+
+      - aaa accounting connection default start-stop group tacacs+
+      - aaa accounting system default start-stop group tacacs+
+      - aaa session-id common
+
+    names:
+      - no_tacacs+
+  
+    tacacs_configs:
+      - tacacs-server host 10.1.176.247
+      - tacacs-server key 7 R3s34rch3r$
+
+
+
+  tasks:
+  - name: set DNS
+    ios_command:
+      commands:
+        - "show running-config full | include ip name-server"
+    register: get_dns
+
+  - debug: var=get_dns.stdout_lines
+    ignore_errors: yes
+ 
+  - name: set name-server commands
+    ignore_errors: yes
+    with_items: "{{ dns_servers }}"
+    ios_config:
+      lines:
+        - "{{ item }}"
+    register: set_dns
+
+  - name: remove name-server commands
+    ignore_errors: yes
+    when: "(get_dns.stdout_lines[0] != '') and (item not in dns_servers)"
+    with_items: "{{ get_dns.stdout_lines[0] }}"
+    register: remove_dns
+    ios_config:
+      lines:
+        - "no {{ item }}"
+
+###ACL
+  - name: CHECK ACLS
+    ios_command:
+      commands:
+        - show ip access-list
+    register: beforeacl
+
+  - debug: var=beforeacl.stdout_lines
+
+
+  - name: CREATE ENVIGO ACL
+    ios_config:
+      commands:
+        - 10 permit 10.128.3.50 0.0.0.0
+      parents: ['ip access-list standard 16']
+      before: ['no ip access-list standard 16']
+      match: exact
+
+    register: newacl
+
+  - debug: var=newacl.stdout_lines
+
+  - name: CHECK ACLS
+    ios_command:
+      commands:
+        - show ip access-list
+    register: afteracl
+
+  - debug: var=afteracl.stdout_lines
+
+###USERS
+  - name: remove all users
+    ios_user:
+      purge: yes
+    register: remove
+
+  - debug: var=remove
+
+  - name: create a new user
+    ios_user:
+      name: no_tacacs+
+      configured_password: Envigo.D15ast5r
+      state: present
+    register: create
+
+  - debug: var=create
+  
+  - name: users to privilege level
+    ios_user:
+      name: no_tacacs+
+      privilege: 15
+      state: present
+    register: priv
+  - debug: var=priv
+
+###DISABLE HTTPS
+  - name: disable HTTP/HTTPS
+    ios_config:
+      commands:
+        - no ip http server
+        - no ip http secure-server
+  - debug: msg="HTTP and HTTPS have been disabled"
+
+###MOTD
+  - name: CONFIGURE BANNER ON CISCO DEVICES
+    ios_banner:
+      banner: login
+      text: "{{ lookup('file', '/etc/ansible/banner.cfg') }}"
+      state: present
+
+###AAA
+  - name: get the current aaa configs
+    ignore_errors: yes
+    ios_command:
+      commands:
+        - "show running-config full | include aaa"
+    register: get_aaa
+  - debug: var=get_aaa.stdout_lines
+
+  - name: set aaa configs
+    with_items: "{{ aaa_configs }}"
+    ios_config:
+      lines:
+        - "{{ item }}"
+    register: set_aaa
+
+  - name: remove aaa configs
+    when: "(get_aaa.stdout_lines[0] != '') and (item not in aaa_configs)"
+    with_items: "{{ get_aaa.stdout_lines[0] }}"
+    register: remove_aaa
+    ios_config:
+      lines:
+        - "no {{ item }}"
+###TACACS
+  - name: get the current tacacs configs
+    ios_command:
+      commands:
+        - "show running-config full | include tacacs-server"
+    register: get_tacacs
+  - debug: var=get_tacacs.stdout_lines
+
+#  - name: set tacacs configs
+#    with_items: "{{ tacacs_configs }}"
+#    ios_config:
+#      lines:
+#        - "{{ item }}"
+#    register: set_tacacs
+
+#  - name: remove tacacs configs
+#    when: "(get_tacacs.stdout_lines[0] != '') and (item not in tacacs_configs)"
+#    with_items: "{{ get_tacacs.stdout_lines[0] }}"
+#    register: remove_tacacs
+#    ios_config:
+#      lines:
+#        - "no {{ item }}"
+
+###VTY
+  - name: TRANSPORT INPUT SSH 
+    ios_config:
+      lines:
+        - line vty 0 15
+        - transport input ssh
+        - access-class 16 in

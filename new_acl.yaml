@@ -1,0 +1,56 @@
+- name: ACL
+  hosts: test
+  gather_facts: false
+  connection: local
+  tags: [ "acl", "ios" ]
+
+  vars_prompt:
+
+  - name: "aclNAME"
+    prompt: "ACL Name"
+    private: no
+    when: aclNAME is undefined
+
+  vars:
+  - aclLIST: "{{ ACL[aclNAME].LIST }}"
+  - aclLIST: "{{ ACL[aclNAME].TYPE }}"
+
+  tasks:
+
+  - name: "GET access-list"
+    register: get_acl_config
+    ios_command:
+      commands:
+        - "show access-lists {{ aclNAME }} | include ^\ +[1-9]"
+
+  - name: "DEL access-list lines"
+    when: "(get_acl_config.stdout_lines[0][0] != '') and (item not in lookup('template', 'ios_acl.j2'))"
+    with_items: "{{ get_acl_config.stdout_lines[0] |\
+                        regex_replace('[ \t]{2}') |\
+                        regex_replace(', wildcard bits') |\
+                        regex_replace(' [(].{9,30}[)]') }}"
+    ios_config:
+      provider: "{{ provider }}"
+      lines: "no {{ item }}"
+      parents: "ip access-list {{ aclTYPE }} {{ aclNAME }}"
+    notify:
+      - Save Configuration
+
+  - name: "PUT access-list lines"
+    when: "(item not in get_acl_config.stdout_lines[0] |\
+                        regex_replace('[ \t]{2}') |\
+                        regex_replace(', wildcard bits') |\
+                        regex_replace(' [(].{9,30}[)]'))"
+    with_items: "{{ lookup('template', 'ios_acl.j2').split('\n') }}"
+    ios_config:
+      lines: "{{ item }}"
+      provider: "{{ provider }}"
+      parents: "ip access-list {{ aclTYPE }} {{ aclNAME }}"
+    notify:
+      - Save Configuration
+
+  handlers:
+
+  - name: "Save Configuration"
+    ios_command:
+      commands: "write memory"

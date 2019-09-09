@@ -1,0 +1,15 @@
+---
+- hosts: test
+  connection: local
+
+  vars:
+    hostname: 660-SW
+  tasks:
+
+  - name: set hostname
+    ios_config:
+      commands: 
+      - hostname {{hostname}}-{{item}}
+    loop:
+      - "{{ inventory_hostname.split('.')[3] }}"
+

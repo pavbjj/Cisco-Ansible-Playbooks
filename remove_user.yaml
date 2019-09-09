@@ -1,0 +1,29 @@
+### need to find regex to exclude username
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+
+  vars:
+     names:
+       - no_tacacs+
+       
+
+  tasks:
+     - name: get users
+       ios_command:
+         commands:
+         - " show run | include username"
+       register: get_config
+
+     - debug: var=get_config.stdout_lines
+
+     - name: remove users
+       ios_user:
+         name: "{{ item }}"
+         state: absent
+       with_items: get_config.stdout_lines
+       when: item not in names
+       register: remove
+     - debug: var=remove
+

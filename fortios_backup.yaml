@@ -1,0 +1,13 @@
+---
+- name: backup Fortigate
+  connection: local
+  hosts: fortigate
+
+  tasks:
+  - name: Backup Config
+    fortios_config:
+      host: "{{ansible_host}}"
+      username: kuligowskip
+      password: Ise.9l0W5rs
+      backup: yes 
+      backup_path: ./fg_config.bak

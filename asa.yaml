@@ -1,0 +1,13 @@
+---
+- name: Change hostname
+  hosts: asa
+  gather_facts: false
+  connection: network_cli
+  become: yes
+
+  tasks:
+    - name: CHECK ACLS
+      ios_command:
+        authorize: yes
+        commands:
+          - hostname laura

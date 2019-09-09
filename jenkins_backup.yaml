@@ -1,0 +1,33 @@
+---
+- hosts: asa
+  connection: local
+  gather_facts: false
+
+  vars:
+    backup_root: /cisco_backups
+
+
+  tasks:
+    - name: run show running-config on remote devices
+      ios_command:
+        commands: show running
+      register: config
+
+    - name: ensure backup folder is created
+      file:
+        path: "{{ backup_root }}/{{ group_names }}"
+        state: directory
+      run_once: yes
+
+    - name: ensure device rolder is created
+      file:
+        path: "{{ backup_root }}/{{ group_names }}/{{ inventory_hostname }}"
+        state: directory
+
+    - name: get timestamp
+      command: date +%Y%m%d
+      register: timestamp
+
+    - copy:
+        content: "{{ config.stdout[0] }}"
+        dest: "{{ backup_root }}/{{ group_names }}/{{ inventory_hostname }}/running-config_{{ timestamp.stdout }}"

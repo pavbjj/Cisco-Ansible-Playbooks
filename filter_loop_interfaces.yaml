@@ -1,0 +1,22 @@
+---
+- name: Get interfaces
+  hosts: test
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: Get facts
+    ios_facts:
+      host: "{{ inventory_hostname }}"
+      gather_subset: "interfaces"
+  - set_fact:
+      twenty: "{{ ansible_net_interfaces|collect_ints('Gigabit Ethernet', 200) }}"
+  - debug: var=ansible_net_interfaces[item]['operstatus']
+    with_items: "{{ twenty }}"
+
+  - name: Un-Apply the policy-map sed-input-mark
+    ios_config:
+      lines:
+      - description kurwa
+      parents: interface {{ item }}
+    with_items: "{{ twenty }}"

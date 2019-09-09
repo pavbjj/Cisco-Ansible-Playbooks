@@ -1,0 +1,41 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+
+
+  vars:
+  
+    snmp_server:
+      - snmp-server community Env1g0 RO 
+      - snmp-server contact helpdesk@envigo.com
+      - snmp-server host 10.1.181.240 version 2c public udp-port 161
+      
+      
+
+  tasks:
+  
+  - name: get the current snmp-server config
+    ios_command:
+      commands:
+        - "show running-config full | include snmp-server"
+    register: get_config
+
+  - debug: var=get_config.stdout_lines
+
+  - name: set snmp-server configs
+    with_items: "{{ snmp_server }}"
+    ios_config:
+      lines:
+        - "{{ item }}"
+    register: set_snmp
+
+  - name: remove snmp-server configs
+    when: "(get_config.stdout_lines[0] != '') and (item not in snmp_server)"
+    with_items: "{{ get_config.stdout_lines[0] }}"
+    register: remove_snmp
+    ios_config:
+      lines:
+        - "no {{ item }}"
+
+ 

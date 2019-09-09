@@ -1,0 +1,38 @@
+---
+- name: 'ASA config'
+  hosts: asa
+  connection: local
+
+  vars:
+    - login_user: cisco
+    - login_pass: cisco
+    - enable_pass: cisco
+
+  gather_facts: false
+  tasks:
+    - name: Retrieve config files from Top ASAs
+      asa_command:
+        commands:
+          - show run
+        provider:
+          username: "{{ login_user }}"
+          password: "{{ login_pass }}"
+          authorize: yes
+          auth_pass: "{{ enable_pass }}"
+      register: output
+
+    - copy: 
+        content: "{{ output.stdout[0] }}"
+        dest: "/asa/{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}-Top-{{ inventory_hostname }}"
+
+    - name: Configure hostname
+      asa_config:
+	src=/etc/ansible/configs/localhost.conf
+        lines:
+          - hostname croxden
+        provider:
+          username: "{{ login_user }}"
+          password: "{{ login_pass }}"
+          authorize: yes
+          auth_pass: "{{ enable_pass }}"
+      register: output
