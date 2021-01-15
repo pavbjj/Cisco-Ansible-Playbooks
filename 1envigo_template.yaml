@@ -91,7 +91,7 @@
   - name: create a new user
     ios_user:
       name: no_tacacs+
-      configured_password: Envigo.D15ast5r
+      configured_password: password.D15ast5r
       state: present
     register: create
 
